@@ -73,10 +73,13 @@ namespace streampp {
         }
 
         Stream<T, C> *limit(long max_size) {
-            long reduction = std::distance(_c, _e) - max_size;
-            auto * stream_ptr = new Stream<T, C>(_c, (_e -= reduction));
-            delete this;
-            return stream_ptr;
+            _end -= std::distance(_current, _end) - max_size;
+            return this;
+        }
+
+        Stream<T, C> *skip(long skipped) {
+            _current += skipped;
+            return this;
         }
 
         long count() {
