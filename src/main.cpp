@@ -29,6 +29,8 @@ public:
 
     int _v;
 
+    int value() const { return _v; }
+
     bool isOdd() const {
         return _v % 2 == 0;
     }
@@ -59,7 +61,7 @@ public:
     }
 
     void display() {
-        std::cout << _v  << " from A" << std::endl;
+        std::cout << _v << " from A" << std::endl;
     }
 };
 
@@ -93,34 +95,15 @@ int main() {
     auto start = std::chrono::steady_clock::now();
 
     auto stream_ptr = StreamBuilder<A>::make(vector_data);
-    stream_ptr->filter(&A::isOdd)
-                ->map(&A::time_two)
-                ->forEach(&A::display);
+    std::map<int, bool> stream_result = stream_ptr
+                                        ->limit(20)
+                                        ->collect<int, bool>(&A::value, &A::isOdd);
 
-    long count = StreamBuilder<A>::make(vector_data)->count();
-    std::cout << "Count : " << count << std::endl;
-
-    stream_ptr = StreamBuilder<A>::make(vector_data);
-    stream_ptr->limit(10)
-              ->forEach(&A::display);
-
+    std::for_each(stream_result.begin(), stream_result.end(), display);
 
     auto end = std::chrono::steady_clock::now();
-    std::chrono::duration<double>  elapsed_seconds = end-start;
+    std::chrono::duration<double> elapsed_seconds = end - start;
     std::cout << "elapsed time: " << elapsed_seconds.count() << "s\n";
-
-    start = std::chrono::steady_clock::now();
-    std::cout << "FOR EACH ---" << std::endl;
-    for(auto & a : vector_data) {
-        if (a.isOdd()){
-            a.time_two();
-            a.display();
-        }
-    }
-    end = std::chrono::steady_clock::now();
-    elapsed_seconds = end-start;
-    std::cout << "elapsed time: " << elapsed_seconds.count() << "s\n";
-
 
     return EXIT_SUCCESS;
 }

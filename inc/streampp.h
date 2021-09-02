@@ -17,7 +17,6 @@ namespace streampp {
         virtual bool fire(T &node) = 0;
     };
 
-
     template<typename T>
     class StreamBoolOperation : public StreamOperation<T> {
     public:
@@ -43,6 +42,45 @@ namespace streampp {
         std::function<void(T &)> _f;
     };
 
+    template<typename T, template<class ...> class C>
+    class StreamCollectOperation : public StreamOperation<T> {
+    public:
+        virtual C<T> result() = 0;
+    };
+
+    template<typename T>
+    class StreamVectorCollectOperation : public StreamCollectOperation<T, std::vector> {
+
+    public:
+        std::vector<T> result() override {
+            return _container;
+        }
+
+        bool fire(T &node) override {
+            _container.push_back(node);
+            return StreamOperation<T>::Status::EXEC_OK;
+        }
+
+    private:
+        std::vector<T> _container;
+    };
+
+    template<typename T>
+    class StreamSetCollectOperation : public StreamCollectOperation<T, std::set> {
+
+    public:
+        std::set<T> result() override {
+            return _container;
+        }
+
+        bool fire(T &node) override {
+            _container.push_back(node);
+            return StreamOperation<T>::Status::EXEC_OK;
+        }
+
+    private:
+        std::set<T> _container;
+    };
 
     template<typename T, template<class ...> class C>
     class Stream {
@@ -83,7 +121,16 @@ namespace streampp {
         }
 
         long count() {
-            return std::distance(_c, _e);
+            long distance = std::distance(_current, _end);
+            delete this;
+            return distance;
+        }
+
+        std::vector<T> collect() {
+            auto operation = new StreamVectorCollectOperation<T>();
+            _operations.push_back(operation);
+            _consume();
+            return operation->result();
         }
 
         void forEach(std::function<void(T &)> f) {
@@ -92,21 +139,21 @@ namespace streampp {
             delete this;
         }
 
-        Stream(StreamIterator begin, StreamIterator end) : _c(begin), _e(end) {}
+        Stream(StreamIterator begin, StreamIterator end) : _current(begin), _end(end) {}
 
     private:;
 
         void _consume() {
-            while (_c != _e) {
+            while (_current != _end) {
                 for (auto op: _operations) {
-                    if (op->fire(*_c) == false) break;
+                    if (op->fire(*_current) == false) break;
                 }
-                _c++;
+                _current++;
             }
         }
 
-        StreamIterator _c;
-        StreamIterator _e;
+        StreamIterator _current;
+        StreamIterator _end;
 
         std::vector<StreamOperation<T> *> _operations;
     };
@@ -116,10 +163,6 @@ namespace streampp {
     public:
         static Stream<T, std::vector> *make(std::vector<T> &data) {
             return new Stream<T, std::vector>(data.begin(), data.end());
-        }
-
-        static Stream<T, std::set> *make(std::set<T> data) {
-            return new Stream<T, std::set>(data.begin(), data.end());
         }
     };
 }
