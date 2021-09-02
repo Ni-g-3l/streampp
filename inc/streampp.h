@@ -48,10 +48,10 @@ namespace streampp {
     class Stream {
     public:
 
-        typedef __gnu_cxx::__normal_iterator<T*, C<T>> StreamIterator;
+        typedef __gnu_cxx::__normal_iterator<T *, C<T>> StreamIterator;
 
-        ~Stream () {
-            std::for_each(_operations.begin(), _operations.end(), [](StreamOperation<T> * op) {
+        ~Stream() {
+            std::for_each(_operations.begin(), _operations.end(), [](StreamOperation<T> *op) {
                 delete op;
             });
             _operations.clear();
@@ -67,9 +67,16 @@ namespace streampp {
             return this;
         }
 
-        Stream<T, C> *map(std::function<void(T&)> f) {
+        Stream<T, C> *map(std::function<void(T &)> f) {
             _operations.push_back(new StreamVoidOperation<T>(f));
             return this;
+        }
+
+        Stream<T, C> *limit(long max_size) {
+            long reduction = std::distance(_c, _e) - max_size;
+            auto * stream_ptr = new Stream<T, C>(_c, (_e -= reduction));
+            delete this;
+            return stream_ptr;
         }
 
         long count() {
@@ -87,9 +94,9 @@ namespace streampp {
     private:;
 
         void _consume() {
-            while(_c != _e) {
-                for(auto op : _operations) {
-                    if(op->fire(*_c) == false) break;
+            while (_c != _e) {
+                for (auto op: _operations) {
+                    if (op->fire(*_c) == false) break;
                 }
                 _c++;
             }
@@ -104,11 +111,11 @@ namespace streampp {
     template<typename T>
     class StreamBuilder {
     public:
-        static Stream<T, std::vector> *make(std::vector<T> & data) {
+        static Stream<T, std::vector> *make(std::vector<T> &data) {
             return new Stream<T, std::vector>(data.begin(), data.end());
         }
 
-        static Stream<T, std::set> *make(std::set<T> data){
+        static Stream<T, std::set> *make(std::set<T> data) {
             return new Stream<T, std::set>(data.begin(), data.end());
         }
     };

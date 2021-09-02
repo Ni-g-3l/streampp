@@ -100,6 +100,11 @@ int main() {
     long count = StreamBuilder<A>::make(vector_data)->count();
     std::cout << "Count : " << count << std::endl;
 
+    stream_ptr = StreamBuilder<A>::make(vector_data);
+    stream_ptr->limit(10)
+              ->forEach(&A::display);
+
+
     auto end = std::chrono::steady_clock::now();
     std::chrono::duration<double>  elapsed_seconds = end-start;
     std::cout << "elapsed time: " << elapsed_seconds.count() << "s\n";
