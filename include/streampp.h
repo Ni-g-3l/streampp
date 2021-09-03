@@ -18,16 +18,6 @@ namespace streampp {
     };
 
     template<typename T>
-    class StreamConstOperation {
-    public:
-        virtual bool fire(const T node) = 0;
-
-        bool fire(T &node) override {
-            return fire(const_cast<const T>(node));
-        }
-    };
-
-    template<typename T>
     class StreamBoolOperation : public StreamOperation<T> {
     public:
         explicit StreamBoolOperation(std::function<bool(T &)> f) : _f(f) {}
