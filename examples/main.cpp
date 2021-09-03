@@ -70,4 +70,10 @@ int main() {
 
     animal_stream = getAnimalStream();
     std::cout << "COUNT (Female) : " << animal_stream->filter(&Animal::isMale)->count() << std::endl;
+
+    animal_stream = getAnimalStream();
+    std::cout << "MIN : " << *animal_stream->min() << std::endl;
+
+    animal_stream = getAnimalStream();
+    std::cout << "MAX : " << *animal_stream->max() << std::endl;
 }

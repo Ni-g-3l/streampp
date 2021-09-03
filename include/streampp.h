@@ -42,6 +42,44 @@ namespace streampp {
         std::function<void(T &)> _f;
     };
 
+    template<typename T>
+    class StreamMinComparatorOperation : public StreamOperation<T> {
+
+    public:
+        bool fire(T &node) override {
+            if(value == nullptr || node < *value)
+                value = &node;
+
+            return StreamOperation<T>::EXEC_OK;
+        }
+
+        T * min() {
+            return value;
+        }
+
+    private:
+        T * value;
+    };
+
+    template<typename T>
+    class StreamMaxComparatorOperation : public StreamOperation<T> {
+
+    public:
+        bool fire(T &node) override {
+            if(value == nullptr || node > *value)
+                value = &node;
+
+            return StreamOperation<T>::EXEC_OK;
+        }
+
+        T * max() {
+            return value;
+        }
+
+    private:
+        T * value;
+    };
+
     template<typename T, template<class ...> class C>
     class StreamCollectOperation : public StreamOperation<T> {
     public:
@@ -152,6 +190,26 @@ namespace streampp {
             return match == 0;
         }
 
+        T * min() {
+            auto * op = new StreamMinComparatorOperation<T>();
+            _operations.push_back(op);
+            _consume();
+            T *min = op->min();
+            delete this;
+            return min;
+        }
+
+        T * max() {
+            auto * op = new StreamMaxComparatorOperation<T>();
+            _operations.push_back(op);
+            _consume();
+            T *max = op->max();
+            delete this;
+            return max;
+        }
+
+
+
         Stream(StreamIterator begin, StreamIterator end) : _current(begin), _end(end) {}
 
     private:;
@@ -165,7 +223,7 @@ namespace streampp {
             }
         }
 
-        void _match(int * match_number) {
+        void _match(int *match_number) {
             while (_current != _end) {
                 bool match = true;
                 for (auto op: _operations) {

@@ -29,6 +29,14 @@ public:
     bool isMale() const;
     bool isFemale() const;
 
+    bool operator<(const Animal &rhs) const;
+
+    bool operator>(const Animal &rhs) const;
+
+    bool operator<=(const Animal &rhs) const;
+
+    bool operator>=(const Animal &rhs) const;
+
 private:
     std::string _name;
     int _age;

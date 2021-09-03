@@ -19,6 +19,22 @@ std::ostream &operator<<(std::ostream &os, const Animal &animal) {
     return os;
 }
 
+bool Animal::operator<(const Animal &rhs) const {
+    return _age < rhs._age;
+}
+
+bool Animal::operator>(const Animal &rhs) const {
+    return rhs < *this;
+}
+
+bool Animal::operator<=(const Animal &rhs) const {
+    return !(rhs < *this);
+}
+
+bool Animal::operator>=(const Animal &rhs) const {
+    return !(*this < rhs);
+}
+
 bool Animal::isMale() const {
     return _gender == GENDER::MALE;
 }
