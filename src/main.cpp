@@ -86,7 +86,7 @@ using namespace streampp;
 int main() {
 
     std::vector<A> vector_data;
-    int size = 100;
+    int size = 1000000;
     vector_data.reserve(size);
     for (int i = 0; i < size; i++)
         vector_data.emplace_back(i);
@@ -95,9 +95,9 @@ int main() {
     auto start = std::chrono::steady_clock::now();
 
     auto stream_ptr = StreamBuilder<A>::make(vector_data);
-    std::map<int, bool> stream_result = stream_ptr
-                                        ->limit(20)
-                                        ->collect<int, bool>(&A::value, &A::isOdd);
+    auto stream_result = stream_ptr
+                        ->limit(20)
+                        ->collectToVector();
 
     std::for_each(stream_result.begin(), stream_result.end(), display);
 

@@ -18,6 +18,16 @@ namespace streampp {
     };
 
     template<typename T>
+    class StreamConstOperation {
+    public:
+        virtual bool fire(const T node) = 0;
+
+        bool fire(T &node) override {
+            return fire(const_cast<const T>(node));
+        }
+    };
+
+    template<typename T>
     class StreamBoolOperation : public StreamOperation<T> {
     public:
         explicit StreamBoolOperation(std::function<bool(T &)> f) : _f(f) {}
@@ -52,6 +62,10 @@ namespace streampp {
     class StreamVectorCollectOperation : public StreamCollectOperation<T, std::vector> {
 
     public:
+        virtual ~StreamVectorCollectOperation() {
+            _container.clear();
+        }
+
         std::vector<T> result() override {
             return _container;
         }
@@ -63,23 +77,6 @@ namespace streampp {
 
     private:
         std::vector<T> _container;
-    };
-
-    template<typename T>
-    class StreamSetCollectOperation : public StreamCollectOperation<T, std::set> {
-
-    public:
-        std::set<T> result() override {
-            return _container;
-        }
-
-        bool fire(T &node) override {
-            _container.push_back(node);
-            return StreamOperation<T>::Status::EXEC_OK;
-        }
-
-    private:
-        std::set<T> _container;
     };
 
     template<typename T, template<class ...> class C>
@@ -126,7 +123,7 @@ namespace streampp {
             return distance;
         }
 
-        std::vector<T> collect() {
+        std::vector<T> collectToVector() {
             auto operation = new StreamVectorCollectOperation<T>();
             _operations.push_back(operation);
             _consume();
