@@ -31,5 +31,6 @@
 *.out
 *.app
 *.xml
-/cmake-build-debug/
-/.idea/streampp.iml
+
+**/.idea
+**/cmake-build-debug/
