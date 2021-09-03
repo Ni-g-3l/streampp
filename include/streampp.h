@@ -161,6 +161,9 @@ namespace streampp {
         static Stream<T, std::vector> *make(std::vector<T> &data) {
             return new Stream<T, std::vector>(data.begin(), data.end());
         }
+
+    private:
+        StreamBuilder() = default;;
     };
 }
 
