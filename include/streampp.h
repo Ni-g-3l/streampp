@@ -163,7 +163,7 @@ namespace streampp {
         }
 
     private:
-        StreamBuilder() = default;;
+        StreamBuilder() = default;
     };
 }
 
