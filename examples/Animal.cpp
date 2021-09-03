@@ -18,3 +18,11 @@ std::ostream &operator<<(std::ostream &os, const Animal &animal) {
     os << "<Name: " << animal._name << " - Age: " << animal._age << " - Gender: " << animal._gender << ">";
     return os;
 }
+
+bool Animal::isMale() const {
+    return _gender == GENDER::MALE;
+}
+
+bool Animal::isFemale() const {
+    return _gender == GENDER::FEMALE;
+}

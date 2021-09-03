@@ -26,6 +26,9 @@ public:
 
     GENDER getGender() const;
 
+    bool isMale() const;
+    bool isFemale() const;
+
 private:
     std::string _name;
     int _age;

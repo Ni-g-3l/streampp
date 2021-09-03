@@ -108,9 +108,10 @@ namespace streampp {
         }
 
         long count() {
-            long distance = std::distance(_current, _end);
+            int size = 0;
+            _match(&size);
             delete this;
-            return distance;
+            return size;
         }
 
         std::vector<T> collectToVector() {
@@ -126,6 +127,31 @@ namespace streampp {
             delete this;
         }
 
+        bool allMatch(std::function<bool(T &)> f) {
+            _operations.push_back(new StreamBoolOperation<T>(f));
+            int size = std::distance(_current, _end);
+            int match = 0;
+            _match(&match);
+            delete this;
+            return size == match;
+        }
+
+        bool anyMatch(std::function<bool(T &)> f) {
+            _operations.push_back(new StreamBoolOperation<T>(f));
+            int match = 0;
+            _match(&match);
+            delete this;
+            return match > 0;
+        }
+
+        bool noneMatch(std::function<bool(T &)> f) {
+            _operations.push_back(new StreamBoolOperation<T>(f));
+            int match = 0;
+            _match(&match);
+            delete this;
+            return match == 0;
+        }
+
         Stream(StreamIterator begin, StreamIterator end) : _current(begin), _end(end) {}
 
     private:;
@@ -135,6 +161,20 @@ namespace streampp {
                 for (auto op: _operations) {
                     if (op->fire(*_current) == false) break;
                 }
+                _current++;
+            }
+        }
+
+        void _match(int * match_number) {
+            while (_current != _end) {
+                bool match = true;
+                for (auto op: _operations) {
+                    if (op->fire(*_current) == false) {
+                        match = false;
+                        break;
+                    }
+                }
+                *match_number += match ? 1 : 0;
                 _current++;
             }
         }
