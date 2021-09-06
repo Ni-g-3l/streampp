@@ -4,6 +4,8 @@
 
 #include <functional>
 #include <valarray>
+#include <set>
+#include <memory>
 
 namespace streampp {
 
@@ -80,6 +82,27 @@ namespace streampp {
         T * value;
     };
 
+    template<typename T>
+    class StreamDistinctComparatorOperation: public StreamOperation<T> {
+    public:
+
+        ~StreamDistinctComparatorOperation() {
+            _set.clear();
+        }
+
+        bool fire(T &node) override {
+
+            if(_set.find(node) != _set.end())
+                return StreamOperation<T>::EXEC_FAILED;
+
+            _set.insert(node);
+            return StreamOperation<T>::EXEC_OK;
+        }
+
+    private:
+        std::set<T> _set;
+    };
+
     template<typename T, template<class ...> class C>
     class StreamCollectOperation : public StreamOperation<T> {
     public:
@@ -142,6 +165,11 @@ namespace streampp {
 
         Stream<T, C> *skip(long skipped) {
             _current += skipped;
+            return this;
+        }
+
+        Stream<T, C>* distinct() {
+            _operations.push_back(new StreamDistinctComparatorOperation<T>());
             return this;
         }
 

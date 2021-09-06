@@ -17,12 +17,13 @@ void displayAnimal(Animal &a) {
 streampp::Stream<Animal, std::vector> *getAnimalStream() {
     line();
     auto *animals = new std::vector<Animal>();
-    auto *names = new std::vector<std::string>({"Logan", "Matou", "Tim", "Valerie", "Cacao", "Soho"});
-    auto *ages = new std::vector<int>({12, 23, 121, 14, 17, 18});
+    auto *names = new std::vector<std::string>({"Logan", "Matou", "Tim", "Valerie", "Cacao", "Soho", "Logan"});
+    auto *ages = new std::vector<int>({12, 23, 121, 14, 17, 18, 12});
     auto *genders = new std::vector<Animal::GENDER>({
                                                             Animal::GENDER::MALE, Animal::GENDER::FEMALE,
                                                             Animal::GENDER::MALE, Animal::GENDER::FEMALE,
-                                                            Animal::GENDER::MALE, Animal::GENDER::FEMALE
+                                                            Animal::GENDER::MALE, Animal::GENDER::FEMALE,
+                                                            Animal::GENDER::MALE
                                                     });
 
     for (int i = 0; i < names->size(); ++i) {
@@ -31,6 +32,7 @@ streampp::Stream<Animal, std::vector> *getAnimalStream() {
 
     ages->clear();
     names->clear();
+    genders->clear();
 
     delete ages;
     delete names;
@@ -76,4 +78,9 @@ int main() {
 
     animal_stream = getAnimalStream();
     std::cout << "MAX : " << *animal_stream->max() << std::endl;
+
+    animal_stream = getAnimalStream();
+    std::cout << "DISTINCT : " << std::endl;
+    animal_stream->distinct()->forEach(displayAnimal);
+
 }
